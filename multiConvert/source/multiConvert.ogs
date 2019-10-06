@@ -1,0 +1,92 @@
+//imports several files in specified folder below (ususally, files from spectrometer)
+//creates a separate project for each file and plots the data in the each project.
+
+doc -ss 1; // Turn off the save. 
+doc -n; //create a new project.
+doc -ss 0; // Restore to default setting, prompt to save if modified.
+
+// Point to where the data files are
+string path$ = "D:\samples\";
+
+// Find all files with wild card
+//findfiles ext:="*.csv";
+findfiles f:=fns$ e:="*.csv";
+
+int numFiles = fns.GetNumTokens(LF);
+ 
+// Loop over all files
+int nFirst = 1;
+for(int ifile = 1; ifile <= numFiles; ifile++)
+{
+	string filepath$, filename$; 
+	// Get next file name
+	filepath$=fns.gettoken(ifile,LF)$;
+	// Parse out just file name without path and without extension
+	filename$ = filepath.GetFileName(1)$;	
+ //import files with a given filename        
+        impasc fn:=filepath$;
+        //set the column types
+        wks.col = 1; 
+        wks.col.type = 4;
+        wks.col = 2; 
+        wks.col.type = 1;
+        
+        
+    	//plotting
+    	plotxy iy:=col(2) plot:=201;   	
+    	layer.y.from = 0;
+    	layer.y.to = 1300;
+    	layer.x.from = 0;
+    	layer.x.to = 1600;
+    	layer.y.majorTicks = 9;
+    	layer.x.majorTicks = 9;    	
+        //labelling the plot with the name of the initial file        
+        label label;
+        Text.text$ = "\b(" + filename$ + ")";
+        
+        
+        //Set symbol shape to circle
+        set %C -k 2;
+        // Set symbol size to 3
+        set %C -z 3;
+        	// Setting size and boldness of the tick labels font:
+        	
+        	//size of the ticks captions font
+			tSize = 28;
+			//size of the axis Labels font
+			lSize = 34;
+			//font of the axis Labels
+			f = font(Arial CYR);
+				range ll = !;
+				ll.x.label.bold = 1;
+				ll.x.label.pt=tSize;
+
+				ll.y.label.bold = 1;
+				ll.y.label.pt=tSize;
+
+				ll.y2.label.bold = 1;
+				ll.y2.label.pt=tSize;
+
+				//setting the axis label's font size and boldness
+				XB.fsize = lSize;
+				//make the caption bold
+				XB.text$ = "";
+				XB.text$ = "\b(" + XB.text$ + ")";
+				XB.font = f;
+
+				YL.fsize = lSize;
+				//make the caption bold
+				YL.text$ = "N";
+				YL.text$ = "\b(" + YL.text$ + ")";
+				YL.font = f;
+				// deleting legend
+				label -r Legend;
+	%A = filepath$;
+	%A =;
+	window -z Graph1;
+	doc -u Graph1;
+    save %A;    	        
+    window -c Graph1;   	
+
+}
+doc -n; //create a new project.

@@ -1,0 +1,69 @@
+//2018.11.14
+/*imports several files in specified folder below as new columns in a
+ worksheet. Designates odd columns as type X and even columns as type Y,
+ shift the values of the x-column proportional to the column "number",
+ and plots them all
+*/
+
+double centerFrame = 1021.0;
+double corSpeed = 0.0;
+
+
+doc -ss 1; // Turn off the save. 
+doc -n; //create a new project.
+doc -ss 0; // Restore to default setting, prompt to save if modified.
+
+
+// Point to where the data files are
+string path$ = "\\128.255.35.174\expAnalysisBackup\test\20181114testshiftPlot\hists50";
+
+
+// Find all files with wild card
+//findfiles ext:="*.csv";
+findfiles f:=fns$ e:="*.csv";
+int numFiles = fns.GetNumTokens(LF);
+
+// Loop over all files
+int nFirst = 1;
+for(int ifile = 1; ifile <= numFiles; ifile++)
+{
+	string filepath$, filename$; 
+	// Get next file name
+	filepath$=fns.gettoken(ifile,LF)$;
+	// Parse out just file name without path and without extension
+	filename$ = filepath.GetFileName(1)$;	
+	impasc fn:=filepath$ options.ImpMode:=1; /* start new columns */;
+	//import files with a given filename 	
+}
+//cycle through all columns and assign X type for the odd columns and 
+//Y type for the even ones:
+numColumns = wks.ncols; 
+for (int icol = 1; icol <= numColumns; icol++)
+{
+	wks.col = icol; // switch to the columns number icol	
+	double dicol = icol;
+	//if the column is odd, make it type X. if even -- type Y:
+	if (frac(dicol / 2.0 ) == 0) 
+		{
+			wks.col.type = 1;			
+		} 
+		else 
+			{
+				wks.col.type = 4;								
+				string slname$ = col(%(icol + 1))[L]$; // get the long name of the corresponding y column
+				int nn=slname.ReverseFind(' '); //find the space separating the word "frame" from the frame number
+				// Get the substring starting after that position and going to the end.
+				string strnum$=slname.Mid(nn+1)$;
+				double fnumber = %(strnum$);
+				fnumber = ;
+				wcol(icol) = wcol(icol) + (fnumber - centerFrame)* corSpeed;
+			}
+}
+
+//Plot all:
+plotxy (?,1:end) plot:= 200; /* plot columns from 1 to last. 
+The the "?" notation means "If the column happens to be X type,
+don't plot it".*/
+
+	
+	
